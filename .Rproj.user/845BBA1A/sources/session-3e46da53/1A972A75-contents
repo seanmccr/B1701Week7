@@ -1,0 +1,208 @@
+# ----- B1701 Week 7 | Recruitment Analytics in R | 31.10.23 -----
+
+library(tidyverse)
+library(corrplot)
+library(fmsb)
+
+# ----- Reading Data -----
+
+cricketdata <- read.csv("/Users/seanmccrone/Desktop/MASTERS DEGREE/Course Material/B1701/Week 7/Practical Data/CricketData.csv")
+
+# ----- Cleaning Data -----
+
+summary(cricketdata)
+head(cricketdata)
+str(cricketdata)
+# Converting 'Date' to date, from a character
+cricketdata$Date <- as.Date(cricketdata$Date)
+# Converting 'Country' to factor, from character
+cricketdata$Country <- as.factor(cricketdata$Country)
+
+# ----- Exploratory Analysis -----
+# Code to sort the 'Runs_Scored' variable in descending order
+cricketdata %>%
+  arrange(desc(Runs_Scored)) %>%
+  head(5)
+
+# Code to create a correlation table using the 'cor' function. Name the variable
+# 'correlation_matrix'
+correlation_matrix <- cor(cricketdata[,c("Runs_Scored", "Minutes_Batted", "Balls_Faced")], use = "complete.obs")
+
+# Code to create a correlation plot
+corrplot::corrplot(correlation_matrix, method = "number")
+
+# Code to create a scatterplot of Runs Scored vs Balls Faced
+scatRsBf <- ggplot(cricketdata, aes(x = Runs_Scored, y = Balls_Faced)) +
+  geom_point(color = "#003300") +
+  labs(x = "Runs Scored", y = "Balls Faced") +
+  ggtitle("Scatter Plot: Runs Scored vs Balls Faced")
+scatRsBf
+
+# Code to create a scatterplot of Runs Scored vs Minutes Batted
+scatRsMb <- ggplot(cricketdata, aes(x = Runs_Scored, y = Minutes_Batted)) +
+  geom_point(color = "#33CCFF") +
+  labs(x = "Runs Scored", y = "Minutes Batted") +
+  ggtitle("Scatter Plot: Runs Scored vs Minutes Batted")
+scatRsMb
+
+# Code to give information about the function you want to use regarding the two above
+?corrplot
+
+##### Summarising Data by Player #####
+# Code to provide summary of the data by player; grouped by innings, then summarised
+summary_data <- cricketdata %>%
+  group_by(Innings.Player) %>%
+  summarize(
+    Runs_ScoredTotal = sum(Runs_Scored,na.rm=TRUE),
+    Minutes_BattedTotal = sum(Minutes_Batted,na.rm=TRUE),
+    MatchesTotal = sum(Batted_Flag, na.rm=TRUE),
+    Not_Out_FlagTotal = sum(Not_Out_Flag,na.rm=TRUE),
+    Balls_FacedTotal = sum(Balls_Faced,na.rm=TRUE),
+    Boundary_FoursTotal =sum(Boundary_Fours,na.rm=TRUE),
+    Boundary_SixesTotal =sum(Boundary_Sixes,na.rm=TRUE),
+    Total_InningsTotal =sum(!is.na(Runs_Scored)),
+    X501 =sum(X50.s,na.rm=TRUE),
+    X1001=sum(X100.s,na.rm=TRUE),
+    
+    Runs_ScoredPerMatch = mean(Runs_Scored,na.rm=TRUE),
+    Minutes_BattedPerMatch = mean(Minutes_Batted,na.rm=TRUE),
+    Not_OutPerMatch = mean(Not_Out_Flag,na.rm=TRUE),
+    Balls_FacedPerMatch = mean(Balls_Faced,na.rm=TRUE),
+    Boundary_FoursPerMatch=mean(Boundary_Fours,na.rm=TRUE),
+    Boundary_SixesPerMatch=mean(Boundary_Sixes,na.rm=TRUE),
+    X50PerMatch=mean(X50.s,na.rm=TRUE),
+    X100PerMatch=mean(X100.s,na.rm=TRUE),
+  )
+
+##### Player Overview Table #####
+# Code to provide a data set of the filtered summary 
+filtsummarydata <- summary_data %>%
+  filter(MatchesTotal > 19) %>%
+  arrange(desc(Runs_ScoredPerMatch)) %>%
+  head(5)
+filtsummarydata
+
+# Code to create a new table showing the players in top 10, who have played 19 matches
+top10Runs <- summary_data %>%
+  filter(MatchesTotal > 19) %>%
+  arrange(desc(Runs_ScoredPerMatch)) %>%
+  slice(1:10)
+
+# Code to create a bar chart of those in top 10 runs with colours, numbers and names
+top10Runsplot <- ggplot(top10Runs, aes(x = reorder(Innings.Player, -Runs_ScoredPerMatch), y = Runs_ScoredPerMatch)) +
+  geom_bar(stat = "identity", fill = "#00BFC4") +
+  ggtitle("Top 10 Runs") +
+  geom_text(aes(label = round(Runs_ScoredPerMatch,1), vjust = -0.1)) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1),
+        plot.title =  element_text(hjust = 0.5, colour = "Black", size = 20)) +
+  labs(x = "Players",
+       y = "Runs Scored per Match") +
+  theme_minimal()
+top10Runsplot
+
+# Code to create dataset with all the match by match data for our 10 top performing players.
+top10playernames <- top10Runs$Innings.Player
+top10playerdata <- cricketdata %>%
+  filter(Innings.Player %in% top10playernames)
+
+# Boxplot of scores for each top 10 player
+BPT10 <- ggplot(top10playerdata, aes(x =fct_reorder(Innings.Player, Runs_Scored, .desc=TRUE), y = Runs_Scored)) +
+  geom_boxplot(alpha = 0.5, outlier.colour = NA, aes(fill = Innings.Player)) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  geom_jitter(width = 0.3, aes(color = Innings.Player)) +
+  ggtitle("Score Distribution of Top 10 Players - Boxplot") +
+  labs(x = "", y = "Runs Scored")
+print(BPT10)
+
+# Histogram of scores for each top 10 player
+HPT10 <- ggplot(top10playerdata, aes(x = Runs_Scored)) +
+  geom_histogram() +
+  ggtitle("Score Distribution of Top 10 Players - Histogram") +
+  facet_wrap(~Innings.Player)
+print(HPT10)
+
+# DIFFERENT WAY OF DOING IT!
+# Creating histograms for each player to look at the spread of scores
+hist_scores <- ggplot(top10playerdata, aes(x = Runs_Scored)) +
+  geom_histogram(binwidth = 10, fill = "#00BFC4") +
+  facet_wrap(~Innings.Player) +
+  labs(x = "Runs Scored",
+       y = "Frequency") +
+  theme_minimal()
+hist_scores
+
+
+# ----- Calculating KPIs -----
+
+# Calculate batting strike rate and percentage boundaries per match. Note we use is.finite to ensure we do not get an error when dividing by 0.
+cricketdata <- cricketdata %>%
+  mutate(BattingStrikeRate = ifelse(is.finite(Runs_Scored / Balls_Faced), (Runs_Scored / Balls_Faced) * 100, NA),
+         PercBoundaries = ifelse(is.finite(((Boundary_Fours * 4) + (Boundary_Sixes * 6)) / Runs_Scored), (((Boundary_Fours * 4) + (Boundary_Sixes * 6)) / Runs_Scored) * 100, NA)
+  )
+# Calculate the above mentioned KPIs for match by match data
+summary_data <- summary_data %>%
+  mutate(
+    BattingStrikeRate = ifelse(is.finite(Runs_ScoredTotal / Balls_FacedTotal), (Runs_ScoredTotal / Balls_FacedTotal) * 100, NA),
+    BattingAverage = ifelse(is.finite(Runs_ScoredTotal / (Total_InningsTotal - Not_Out_FlagTotal)), (Runs_ScoredTotal / (Total_InningsTotal - Not_Out_FlagTotal)), NA),
+    NotOutRate = ifelse(is.finite(Not_Out_FlagTotal / Total_InningsTotal), (Not_Out_FlagTotal / Total_InningsTotal) * 100, NA),
+    PercBoundaries = ifelse(is.finite(((Boundary_FoursTotal * 4) + (Boundary_SixesTotal * 6)) / Runs_ScoredTotal), (((Boundary_FoursTotal * 4) + (Boundary_SixesTotal * 6)) / Runs_ScoredTotal) * 100, NA)
+  )
+# Code to show the requisite variables from the dataframe
+top10StrikeRate <- summary_data %>%
+  filter(MatchesTotal>19)%>%
+  arrange(desc(BattingStrikeRate)) %>%
+  slice(1:10)
+
+top10BattingAverage<- summary_data %>%
+  filter(MatchesTotal>19)%>%
+  arrange(desc(BattingAverage)) %>%
+  slice(1:10)
+
+top10NotOutRate<- summary_data %>%
+  filter(MatchesTotal>19)%>%
+  arrange(desc(NotOutRate)) %>%
+  slice(1:10)
+
+top10PercBoundaries<- summary_data %>%
+  filter(MatchesTotal>19)%>%
+  arrange(desc(PercBoundaries)) %>%
+  slice(1:10)
+
+print(top10StrikeRate)
+print(top10NotOutRate)
+print(top10BattingAverage)
+print(top10PercBoundaries)
+
+##### Comparing Player Profiles #####
+# First we need to define the columns to normalize as we want all values to range between 0-1. We will normalise our KPIs 
+columns_to_normalize <- c("BattingStrikeRate", "BattingAverage", "NotOutRate", "PercBoundaries")
+
+# Compute the maximum values for the specified columns. To noramlise to 1 we will need to know the max value present for each variable in the full dataset, this will be listed in a vector called max_values.
+filtsummarydata <- summary_data %>%
+  filter(MatchesTotal>19)
+max_values <- apply(filtsummarydata[,columns_to_normalize], 2, max,na.rm=TRUE)
+
+# Normalize the specified columns (column values / max_values)
+normalized_columns <- sweep(filtsummarydata[, columns_to_normalize], 2, max_values, "/")
+colnames(normalized_columns) <- paste('Norm', colnames(normalized_columns), sep = '_')
+
+# Add the normalized columns back to the filtered data frame
+filtsummarydata <- cbind(filtsummarydata, normalized_columns)
+
+# Filter for specific athletes (here we filter for top 5 batting strike rate)
+top5StrikeRate <- filtsummarydata %>%
+  arrange(desc(BattingStrikeRate)) %>%
+  slice(1:5)
+
+# Select the data for the radar chart
+radar_data <- top5StrikeRate[,c("Norm_BattingStrikeRate", "Norm_BattingAverage", "Norm_NotOutRate", "Norm_PercBoundaries", "Innings.Player")]
+radar_data <- data.frame(BattingStrikeRate = c(1, 0, radar_data$Norm_BattingStrikeRate),
+                         BattingAverage = c(1, 0, radar_data$Norm_BattingAverage),
+                         NotOutRate = c(1, 0, radar_data$Norm_NotOutRate),
+                         PercBoundaries = c(1, 0, radar_data$Norm_PercBoundaries),
+                         row.names=c("max","min",radar_data$Innings.Player))
+                        
+# Create the radar chart
+radar_plot <- radarchart(radar_data)
+
+
