@@ -61,22 +61,6 @@ FinalRanking <- RankedLoIWing %>%
 
 
 
-# Code to rank players and create 'rank' variables
-RankedLoIWing <- FilteredLoIWing %>%
-  mutate_at(vars(8, 9, 11:22), list(rank = ~rank(desc(.))))
-
-# Code to create an aggregated score
-RankedLoIWing <- RankedLoIWing %>%
-  rowwise() %>%
-  mutate(Aggregate_Score = sum(c_across(ends_with("rank")))) %>%
-  ungroup()
-
-# Code to re-order players in aggregate order
-FinalRanking2 <- RankedLoIWing %>%
-  arrange(desc(Aggregate_Score))
-
-
-
 
 
 
