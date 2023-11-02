@@ -1,9 +1,9 @@
 {
     "id": "3AC643ED",
-    "path": "~/Desktop/MASTERS DEGREE/Course Material/B1701/Week 7/Lecture/B1701Week7/Untitled.R",
-    "project_path": "Untitled.R",
+    "path": "~/Desktop/MASTERS DEGREE/Course Material/B1701/Week 7/Lecture/B1701Week7/B1701HamiltonAcademicalRecruitmentAnalysisPractical.R",
+    "project_path": "B1701HamiltonAcademicalRecruitmentAnalysisPractical.R",
     "type": "r_source",
-    "hash": "2244309007",
+    "hash": "1565081895",
     "contents": "",
     "dirty": false,
     "created": 1698800127180.0,
@@ -13,17 +13,17 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "13,0",
-        "scrollLine": "0",
+        "cursorPosition": "37,0",
+        "scrollLine": "17",
         "docOutlineVisible": "1",
-        "docOutlineSize": "105"
+        "docOutlineSize": "44"
     },
     "folds": "",
-    "lastKnownWriteTime": 1698843740,
+    "lastKnownWriteTime": 1698885626,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1698843740137,
+    "last_content_update": 1698885626846,
     "read_only": false,
     "read_only_alternatives": []
 }
