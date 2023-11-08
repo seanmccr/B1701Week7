@@ -21,11 +21,11 @@ FilteredLoIWing <- LoIWing %>%
   filter(`Minutes.played` > 1000, `Contract.expires` < as.Date("2024-01-30"), (`Position` %in% c('LAMF, LW','LW, LAMF', 'RW, RAMF', 'RAMF, RW', 'LAMF, RAMF', 'RAMF, LAMF', 'RAMF, RW, LAMF', 'LWF', 'RAMF, RW, RWF', 'RW, RB, RWB', 'RWB, LWB', 'LWB, RWB', 'RB, RWB', 'RWB, RB', 'LWB, LB', 'LB, LWB')))
         
 # Define the weight for each variable
-weightVector <- c('Goals_rank' = 4, 'Assists_rank' = 4, 'xG_rank' = 4, 'xA_rank' = 4, 'Shots.on.target.per.90_rank' = 4, 
-                  'Duels.won.per.90_rank' = 3, 'Successful.dribbles.per.90_rank' = 3, 
-                  'Crosses.per.90_rank' = 2, 'Accurate.crosses..._rank' = 2, 'Crosses.from.left.flank.per.90_rank' = 2, 
-                  'Crosses.from.right.flank.per.90_rank' = 2,
-                  'Key.passes.per.90_rank' = 1, 'Through.passes.per.90_rank' = 1, 'Passes.to.final.third.per.90_rank' = 1)
+weightVector <- c('Goals_rank' = 1, 'Assists_rank' = 1, 'xG_rank' = 1, 'xA_rank' = 1, 'Shots.on.target.per.90_rank' = 1, 
+                  'Duels.won.per.90_rank' = 2, 'Successful.dribbles.per.90_rank' = 2, 
+                  'Crosses.per.90_rank' = 3, 'Accurate.crosses..._rank' = 3, 'Crosses.from.left.flank.per.90_rank' = 3, 
+                  'Crosses.from.right.flank.per.90_rank' = 3,
+                  'Key.passes.per.90_rank' = 4, 'Through.passes.per.90_rank' = 4, 'Passes.to.final.third.per.90_rank' = 4)
 
 # Code to rank players and create 'rank' variables
 RankedLoIWing <- FilteredLoIWing %>%
@@ -43,61 +43,13 @@ FinalRanking <- RankedLoIWing %>%
   arrange(desc(Aggregate_Score))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Create the bar plot
+ggplot(FinalRanking, aes(x=reorder(Player, Aggregate_Score), y=Aggregate_Score, fill=Player)) +
+  geom_bar(stat='identity') +
+  scale_fill_brewer(palette="Spectral") +
+  xlab("Player") +
+  ylab("Score") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
 

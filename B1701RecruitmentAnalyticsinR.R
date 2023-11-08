@@ -1,12 +1,15 @@
 # ----- B1701 Week 7 | Recruitment Analytics in R | 31.10.23 -----
-
+install.packages("RColorBrewer")
+install.packages("brew")
 library(tidyverse)
 library(corrplot)
 library(fmsb)
+library(brew)
+library(RColorBrewer)
 
 # ----- Reading Data -----
 
-cricketdata <- read.csv("/Users/seanmccrone/Desktop/MASTERS DEGREE/Course Material/B1701/Week 7/Practical Data/CricketData.csv")
+cricketdata <- read.csv("/Users/seanmccrone/Desktop/MASTERS DEGREE/Course Material/B1701/Week 7/OnlinePractical/CricketData.csv")
 
 # ----- Cleaning Data -----
 
@@ -96,8 +99,7 @@ top10Runsplot <- ggplot(top10Runs, aes(x = reorder(Innings.Player, -Runs_ScoredP
   theme(axis.text.x = element_text(angle = 60, hjust = 1),
         plot.title =  element_text(hjust = 0.5, colour = "Black", size = 20)) +
   labs(x = "Players",
-       y = "Runs Scored per Match") +
-  theme_minimal()
+       y = "Runs Scored per Match")
 top10Runsplot
 
 # Code to create dataset with all the match by match data for our 10 top performing players.
@@ -201,8 +203,13 @@ radar_data <- data.frame(BattingStrikeRate = c(1, 0, radar_data$Norm_BattingStri
                          NotOutRate = c(1, 0, radar_data$Norm_NotOutRate),
                          PercBoundaries = c(1, 0, radar_data$Norm_PercBoundaries),
                          row.names=c("max","min",radar_data$Innings.Player))
-                        
+
 # Create the radar chart
-radar_plot <- radarchart(radar_data)
+radarchart(radar_data)
 
-
+# Add legend manually
+legend("right",
+       legend = rownames(radar_data)[3:nrow(radar_data)],
+       col=1:(nrow(radar_data)-2),
+       cex = 0.8,
+       lwd=3)
