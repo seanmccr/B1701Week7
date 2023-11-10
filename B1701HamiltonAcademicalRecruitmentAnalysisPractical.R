@@ -42,7 +42,6 @@ RankedLoIWing <- RankedLoIWing %>%
 FinalRanking <- RankedLoIWing %>%
   arrange(desc(Aggregate_Score))
 
-
 # Create the bar plot
 ggplot(FinalRanking, aes(x=reorder(Player, Aggregate_Score), y=Aggregate_Score, fill=Player)) +
   geom_bar(stat='identity') +
